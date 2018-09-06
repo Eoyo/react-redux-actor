@@ -1,7 +1,7 @@
 {
   "name": "react-redux-actor",
   "version": "1.0.1",
-  "main": "dist/index.js",
+  "main": "build/index.js",
   "module": "es/index.js",
   "types": "./es/index.d.ts",
   "description": "type safe for redux in react. powerful state manager.",
