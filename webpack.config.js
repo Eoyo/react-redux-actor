@@ -2,7 +2,7 @@ module.exports = {
   entry: "./src/index.ts",
   output: {
     filename: "index.js",
-    path: __dirname + "/dist",
+    path: __dirname + "/build",
     libraryTarget: "umd"
   },
 
@@ -32,5 +32,5 @@ module.exports = {
     react: "React",
     "react-dom": "ReactDOM"
   },
-  mode: "production"
+  mode: "development"
 };
