@@ -4,7 +4,8 @@
     "sourceMap": true,
     "target": "esnext",
     "lib": ["dom", "es7"],
-    "module": "commonjs",
+    "module": "esnext",
+    "moduleResolution": "node",
     "declaration": true
   },
   "include": ["./src/**/*"]
