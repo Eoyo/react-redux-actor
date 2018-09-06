@@ -1,20 +1,20 @@
 {
   "name": "react-redux-actor",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "build/index.js",
-  "module": "es/index.js",
-  "types": "./es/index.d.ts",
+  "module": "./es/index.ts",
+  "types": "./es/index.ts",
   "description": "type safe for redux in react. powerful state manager.",
   "deprecated": false,
   "dependencies": {
     "react": "^16.4.2",
     "react-redux": "^5.0.0",
     "redux": "^4.0.0",
-    "redux-logger": "^3.0.6"
+    "redux-logger": "^3.0.6",
+    "@types/react": "^16.4.7",
+    "@types/react-redux": "^5.0.0"
   },
   "devDependencies": {
-    "@types/react": "^16.4.7",
-    "@types/react-redux": "^5.0.0",
     "awesome-typescript-loader": "^3.4.1",
     "source-map-loader": "^0.2.3",
     "typescript": "^2.6.2"
