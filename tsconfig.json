@@ -2,7 +2,7 @@
   "compilerOptions": {
     "outDir": "./es/",
     "sourceMap": true,
-    "target": "esnext",
+    "target": "es5",
     "lib": ["dom", "es7"],
     "module": "esnext",
     "moduleResolution": "node",

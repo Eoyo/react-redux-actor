@@ -1,3 +1,11 @@
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 export function Merge(srcObj, obj) {
     if (Array.isArray(obj) && Array.isArray(srcObj)) {
         // @ts-ignore;
@@ -5,8 +13,8 @@ export function Merge(srcObj, obj) {
     }
     else if (typeof obj === "object" && typeof srcObj === "object") {
         // @ts-ignore; srcObj 肯定是object{}; 更新一层object 包装
-        srcObj = { ...srcObj };
-        for (const x in obj) {
+        srcObj = __assign({}, srcObj);
+        for (var x in obj) {
             srcObj[x] = Merge(srcObj[x], obj[x]);
         }
         return srcObj;
@@ -18,41 +26,41 @@ export function Merge(srcObj, obj) {
 }
 function newState(s) {
     if (Array.isArray(s)) {
-        return [...s];
+        return s.slice();
     }
     else if (typeof s === "object") {
-        return { ...s };
+        return __assign({}, s);
     }
     else {
         return s;
     }
 }
 export function Various(s) {
-    const nS = newState(s);
-    Object.getOwnPropertyNames(s).forEach(d => {
+    var nS = newState(s);
+    Object.getOwnPropertyNames(s).forEach(function (d) {
         nS[d] = newState(s[d]);
     });
-    return (rf) => {
+    return function (rf) {
         rf(nS);
         return nS;
     };
 }
 export function next(func) {
-    return new Promise(res => {
+    return new Promise(function (res) {
         res();
-    }).then(() => {
+    }).then(function () {
         func();
     });
 }
 // generator 函数迭代器.
 export function Senior(gen, valueTransformer, initValue) {
-    let sync = true;
-    let i = 0;
-    let nextValue = initValue;
-    let rus;
+    var sync = true;
+    var i = 0;
+    var nextValue = initValue;
+    var rus;
     do {
         rus = gen.next(nextValue);
-        let transValue;
+        var transValue = void 0;
         // 不是Promise 的交给Transformer 解析一下;
         if (typeof rus.value === "object" && typeof rus.value.then === "function") {
             transValue = rus.value;
@@ -63,7 +71,7 @@ export function Senior(gen, valueTransformer, initValue) {
         // Geno自带的解析.
         if (typeof transValue === "object" &&
             typeof transValue.then === "function") {
-            transValue.then((d) => {
+            transValue.then(function (d) {
                 Senior(gen, valueTransformer, d);
             });
             sync = false;
@@ -73,7 +81,7 @@ export function Senior(gen, valueTransformer, initValue) {
         }
     } while (sync && !rus.done);
 }
-export const SeniorWords = {
+export var SeniorWords = {
     stop: Symbol("stop")
 };
 //# sourceMappingURL=tool.js.map

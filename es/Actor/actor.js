@@ -1,3 +1,11 @@
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 import { createStore, applyMiddleware } from "redux";
 import { Merge, next, Senior, Various } from "./tool";
 import logger from "redux-logger";
@@ -10,7 +18,7 @@ function specialActions(s, d) {
             }
             return Merge(s, d.mergeState);
         case "redux-actor-update":
-            return Various(s)(ns => ns);
+            return Various(s)(function (ns) { return ns; });
         default:
             if (d.type[0] === "*" && typeof d.yetRus === "object") {
                 if (s.sign !== undefined && !d.yetRus.sign) {
@@ -24,32 +32,32 @@ function specialActions(s, d) {
     }
 }
 function BuildBigReducer(reducers, actions, type) {
-    const normal = (state, ac, store) => {
-        const isSpecialRus = specialActions(state, ac);
+    var normal = function (state, ac, store) {
+        var isSpecialRus = specialActions(state, ac);
         // 特殊的内置action不使用reducers处理
         if (isSpecialRus) {
             return isSpecialRus;
         }
         else if (typeof reducers[ac.type] === "function") {
-            const reducerRus = reducers[ac.type](state, Object.assign({}, actions[ac.type], ac));
-            let usertoMerge = reducerRus;
+            var reducerRus_1 = reducers[ac.type](state, Object.assign({}, actions[ac.type], ac));
+            var usertoMerge = reducerRus_1;
             if (
             // is generator
-            typeof reducerRus[Symbol.iterator] === "function") {
+            typeof reducerRus_1[Symbol.iterator] === "function") {
                 // next promise tick to generate;
-                next(() => {
-                    Senior(reducerRus, (yetRus) => {
+                next(function () {
+                    Senior(reducerRus_1, function (yetRus) {
                         if (typeof yetRus === "function") {
                             return yetRus();
                         }
                         else if (!Array.isArray(yetRus) && typeof yetRus === "object") {
                             return store.dispatch({
-                                type: `*[${ac.type}]`,
+                                type: "*[" + ac.type + "]",
                                 yetRus: yetRus
                             });
                         }
                         else {
-                            console.log("Actor reducer wrong state return @" + `*[${ac.type}]`, yetRus);
+                            console.log("Actor reducer wrong state return @" + ("*[" + ac.type + "]"), yetRus);
                             return;
                         }
                     });
@@ -63,7 +71,7 @@ function BuildBigReducer(reducers, actions, type) {
             }
             else {
                 // auto set sign;
-                if (state.sign !== undefined && !reducerRus.sign) {
+                if (state.sign !== undefined && !reducerRus_1.sign) {
                     state.sign = [];
                 }
                 // auto merge
@@ -78,7 +86,9 @@ function BuildBigReducer(reducers, actions, type) {
         }
     };
     if (type === "always") {
-        return (s, d, store) => reducers.always(normal(s, d, store), d.type);
+        return function (s, d, store) {
+            return reducers.always(normal(s, d, store), d.type);
+        };
     }
     else {
         return normal;
@@ -88,31 +98,32 @@ export function Actor(state) {
     return function Actions(actions) {
         return function Reducers(reducers) {
             // 建立 reducer , store
-            const isAlways = reducers.always ? "always" : "normal";
-            const bigReducer = BuildBigReducer(reducers, actions, isAlways);
+            var isAlways = reducers.always ? "always" : "normal";
+            var bigReducer = BuildBigReducer(reducers, actions, isAlways);
             // 不直接开发成redux的中间件, 避免和redux 耦合过多, Actor 4.0 可能使用新的内核.
-            const store = createStore((s = state, d) => {
+            var store = createStore(function (s, d) {
+                if (s === void 0) { s = state; }
                 return bigReducer(s, d, store);
                 // @Middleware here!!
             }, applyMiddleware(logger));
             // });
             // Actor预留的函数
-            const rus = {
-                getStore() {
+            var rus = {
+                getStore: function () {
                     return store;
                 },
-                merge(obj) {
+                merge: function (obj) {
                     store.dispatch({
                         type: "redux-actor-merge",
                         mergeState: obj
                     });
                 },
-                update() {
+                update: function () {
                     store.dispatch({
                         type: "redux-actor-update"
                     });
                 },
-                grab(graber) {
+                grab: function (graber) {
                     if (graber) {
                         return graber(store.getState());
                     }
@@ -120,29 +131,26 @@ export function Actor(state) {
                         return store.getState();
                     }
                 },
-                subscribe(follower) {
-                    return store.subscribe(() => {
-                        next(() => {
-                            const state = store.getState();
+                subscribe: function (follower) {
+                    return store.subscribe(function () {
+                        next(function () {
+                            var state = store.getState();
                             follower(state);
                         });
                     });
                 },
-                pipe(actor, func) {
-                    store.subscribe(() => {
-                        const mergeState = func(store.getState());
+                pipe: function (actor, func) {
+                    store.subscribe(function () {
+                        var mergeState = func(store.getState());
                         actor.merge(mergeState);
                     });
                 }
             };
             // 构造用户的action函数到Actor上;
-            Object.getOwnPropertyNames(actions).forEach(d => {
+            Object.getOwnPropertyNames(actions).forEach(function (d) {
                 // @ts-ignore; 注入
-                rus[d] = (prop) => {
-                    store.dispatch({
-                        type: d,
-                        ...prop
-                    });
+                rus[d] = function (prop) {
+                    store.dispatch(__assign({ type: d }, prop));
                 };
             });
             // 作为真正的ActorRus返回
@@ -155,8 +163,8 @@ export function Act() {
     return function Actions(actions) {
         return function Reducers(reducers) {
             return {
-                reducers,
-                actions
+                reducers: reducers,
+                actions: actions
             };
         };
     };
