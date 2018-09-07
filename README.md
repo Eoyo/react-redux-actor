@@ -2,6 +2,6 @@
 
 核心观点是我们要有: 类型!!
 
-react-redux-actor 此文中简称 Actor;
+react-redux-actor 简称 Actor;
 
-# Actor 强制用户使用 typescript, Actor 为纯 typescript 包.
+1. [Actor](./document/NewIdea/Actor/Actor.md) 管理状态
