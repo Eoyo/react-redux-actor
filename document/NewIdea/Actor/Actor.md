@@ -33,28 +33,28 @@ redux 的思想是对的, 只是他的实现需要 Actor 来加强.
 const app = Actor({
   person: {
     name: "liu",
-    age: 100,
+    age: 100
   },
   data: {
-    address: "cvte",
-  },
+    address: "cvte"
+  }
 })({
   setName: {
-    newName: "",
-  },
+    newName: ""
+  }
 })({
   setName: (s, a) => {
     return {
       person: {
-        name: a.newName,
-      },
+        name: a.newName
+      }
     };
-  },
+  }
 });
 
 // app上存在和reducers, action一一对应的action function.
 app.setName({
-  newName: "xutao",
+  newName: "xutao"
 });
 ```
 
@@ -123,7 +123,7 @@ const reducers = {
 const reducers = {
   doNothing(s, a) {
     return {};
-  },
+  }
 };
 ```
 
@@ -153,30 +153,30 @@ const reducers = {
 const signTest = Actor({
   sign: [] as "scroll" | "click"[],
   data: {
-    name: "",
-  },
+    name: ""
+  }
 })({
   clickName: {
-    name: "",
+    name: ""
   },
-  getName: {},
+  getName: {}
 })({
   clickName: (s, a) => {
     return {
       sign: ["click"],
       data: {
-        name: a.name,
-      },
+        name: a.name
+      }
     };
   },
   getName: (s, a) => {
     return {};
-  },
+  }
 });
 
 // 依次执行clickName,  getName,
 signTest.clickName({
-  name: "string",
+  name: "string"
 });
 signTest.getName({});
 
@@ -195,24 +195,24 @@ signTest.subscribe(s => {
 const stateA = {
   sign: ["click"],
   data: {
-    name: "string",
-  },
+    name: "string"
+  }
 };
 
 // B
 const stateB = {
   sign: [],
   data: {
-    name: "",
-  },
+    name: ""
+  }
 };
 
 // C
 const stateC = {
   sign: [],
   data: {
-    name: "string",
-  },
+    name: "string"
+  }
 };
 
 // 答案详见文末, signTest
@@ -254,6 +254,13 @@ sign 用于在状态树上标记一次当前 action 函数的意图.
 
 1. **尽可能少用 sign**, 两个组件之间对于 sign 的依赖是离散耦合的,  这使得程序设计变得灵活  了的同时,也增加了不可控性. 总之目前的 sign 尽可能少用.
 2. **sign 只能定义成字符串数组**, 考虑到兼容性, 以及兼顾一次性发出多个 sign 的情况.
+
+### 2.5 sign 的通俗介绍
+
+sign 主要是为了满足事件通讯的需求.
+
+1. 在以往 redux 的思路下通知事件, 直接把事件状态标记在状态树上, 就好比立了一个明天大甩卖的牌子, 看到的人会一直以为是明天.
+2. 使用 sign , 则是大声的喊买, 喊完了就没了 , 这个信息就一次性的传出去了.
 
 ## 3. 使用解构赋值的模块化方案
 
