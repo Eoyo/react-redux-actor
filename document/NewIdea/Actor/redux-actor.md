@@ -24,19 +24,31 @@ version
 
     ```typescript
     const actor = redux.Ac(
+      // stateInit
       {},
+      
+      // actionsInit
       {
         getName: {
           id: "1234",
           name: "lium",
         },
       },
+      
+      // reducers
       {
         getName(s, d) {
           return { ...s };
         },
       }
     );
+    
+    
+    // actor 上有了一个对应的actoin function
+    actor.getName ({
+        id: "4212",
+        name : "liumiao"
+    })
     ```
 
 2.  actionsInit:
