@@ -1,13 +1,16 @@
-# react-redux-actor, 为了在大型的单页面 App 中更好的使用 react 和 redux;
+# react-neuron (react-redux-actor 3.0)
+这个不是使用人工智能开发 react, 而是借鉴人工神经网络的一小小部分的思想构建前端应用.
 
-核心观点是我们要有: 类型!!
+当我以神经元的角度来考虑 react 应用中的状态管理器时, 我发现前端中要弄的逻辑与视图的分离,就好比是生物体中大脑和躯体的分离.
 
-react-redux-actor 简称 Actor;
+如果生命是编程而来的, 那么编程也应当仿生.
 
-1. [Actor](./document/NewIdea/Actor/Actor.md) 管理状态
+react-neuron 要做的就是模拟神经网络搭建应用的状态网络.模拟大脑构建前端应用的逻辑体.
 
-2018-09-07 , Actor 分享会议的
+状态管理的思想 , 我是从 redux 得来的. 目前的状态管理的内核使用的是 redux.
 
-1. Actor 1.0 中为了实现 redux 类型安全化的基本思想 (10 分钟)
-2. Actor 2.0 中为了提高开发的效率而内置了更多的功能 (自动 merge, sign 通讯, generate 函数 ) (15 分钟);
-3. 展望 Actor 3.0, 讨论类型安全的模块化的方案. (5 分钟);
+再此感谢 redux, 因为 react-neuron 接下来的版本将要弃用 redux. react-neuron 将于 2018 年 11 月初正式上线.
+
+将提供一些新的开发理念：
+1. disperser, 离约函数.
+2. 递归归约和自归约.
