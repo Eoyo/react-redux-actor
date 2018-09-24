@@ -1,0 +1,56 @@
+{
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  "files.associations": {
+    "copy": "shellscript"
+  },
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
+  "emmet.excludeLanguages": [
+    "markdown",
+    "javascript",
+    "typescriptreact",
+    "typescript"
+  ],
+  "prettier.trailingComma": "all",
+  "prettier.singleQuote": true,
+  "files.autoSave": "off",
+  "git.enableSmartCommit": true,
+  "git.confirmSync": false,
+  "todohighlight.keywords": [
+    {
+      "text": "yet",
+      "color": "#e3b",
+      "backgroundColor": "rgba(0,0,0,0)",
+      "overviewRulerColor": "grey"
+    },
+    {
+      "text": "Neuron",
+      "color": "#9d3bea",
+      "backgroundColor": "rgba(0,0,0,0)",
+      "overviewRulerColor": "grey"
+    },
+    {
+      "text": "S.",
+      "color": "#ea7a00",
+      "backgroundColor": "rgba(0,0,0,0)",
+      "overviewRulerColor": "grey"
+    },
+    {
+      "text": "!!",
+      "color": "#ff3f4d",
+      "backgroundColor": "rgba(0,0,0,0)",
+      "overviewRulerColor": "grey"
+    },
+    {
+      "text": "@@",
+      "color": "#26bd5b",
+      "backgroundColor": "rgba(0,0,0,0)",
+      "overviewRulerColor": "grey"
+    }
+  ],
+  "workbench.colorTheme": "Solarized Light",
+  "prettier.printWidth": 80,
+  "prettier.bracketSpacing": false,
+  "editor.formatOnSave": true
+}
