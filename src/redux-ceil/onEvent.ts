@@ -1,11 +1,23 @@
-import {toArrMap, ArrayMap, toFuncMap} from '../neuron-utills/obj/objMap';
+import {
+  toArrMap,
+  ArrayMap,
+  toFuncMap,
+  toAsyncFuncMap,
+} from '../neuron-utills/obj/objMap';
 
-export class OnEvent<T extends {[x: string]: Function}> {
+type EvenNode = {[x: string]: Function};
+export class OnEvent<T extends EvenNode, Async extends EvenNode = {}> {
   on: T;
+  onAsync: Async;
   private onPool: ArrayMap<T>;
-  constructor(obj: T) {
+  private onAsyncPool: ArrayMap<Async>;
+  constructor(obj: T, asycnObj?: Async) {
     this.onPool = toArrMap(obj);
     this.on = toFuncMap(this.onPool);
+    if (asycnObj) {
+      this.onAsyncPool = toArrMap(asycnObj);
+      this.onAsync = toAsyncFuncMap(toFuncMap(this.onAsyncPool));
+    }
   }
   addEventListener(obj: Partial<T>) {
     return toArrMap(obj, this.onPool);

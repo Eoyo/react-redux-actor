@@ -1,4 +1,4 @@
-import {Neuron} from './neuron';
+import {Neuron} from './index';
 
 Neuron.addWatcher({
   merge(mergeState, key) {},

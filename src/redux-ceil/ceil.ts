@@ -32,14 +32,20 @@ export class Ceil<S, T extends CeilReducer<S>> {
   reducers: T;
   reducersStack: Key[] = [];
   stackSize: number;
-  ev: CeilEvent<S, T> = new OnEvent({
-    // ceil 内部事件的回调
-    merge: (mergeObj: mergeObj<S>, type: keyof T) => {
-      this.state = Merge(this.state, mergeObj);
+  ev = new OnEvent(
+    <CeilEventObjMap<S, T>>{
+      // ceil 内部事件的回调
+      merge: (mergeObj, key) => {
+        this.state = Merge(this.state, mergeObj);
+        this.ev.onAsync.update(this.state, key);
+      },
+      before: (state, key) => {},
+      after: (state, key) => {},
     },
-    before: (state: S, key: keyof T) => {},
-    after: (state: S, key: keyof T) => {},
-  });
+    {
+      update: (state, key) => {},
+    },
+  );
   constructor(state: S, reducers: T, stackSize: number = 10) {
     this.reducers = reducers;
     this.state = state;
@@ -63,6 +69,8 @@ export class Ceil<S, T extends CeilReducer<S>> {
       this.ev.on.merge(state, key);
       this.ev.on.after(this.state, key);
     };
+
+    // 返回action函数。
     return (arg: getAction<T[x]>) => {
       this.checkStack();
       // 递归的阻断
