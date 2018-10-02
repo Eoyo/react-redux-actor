@@ -25,6 +25,12 @@
       "overviewRulerColor": "grey"
     },
     {
+      "text": " yet)",
+      "color": "#f37f5f",
+      "backgroundColor": "rgba(0,0,0,0)",
+      "overviewRulerColor": "grey"
+    },
+    {
       "text": "Neuron",
       "color": "#9d3bea",
       "backgroundColor": "rgba(0,0,0,0)",

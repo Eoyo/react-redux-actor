@@ -1,4 +1,7 @@
-import {Through} from '../functional/function';
+/**
+ * objMap, 使用obj进行映射的数据结构
+ */
+import {Through, LastAsync} from '../functional/function';
 import {nextTick} from '../time/next';
 
 /**
@@ -48,34 +51,36 @@ export function toArrMap(objMap, arrMap?): any {
 /**
  * toFuncMap, 将ArrMap 变成FuncMap
  */
-type funcNode = {
+export type funcNode = {
   [x: string]: Function;
 };
-export function toFuncMap<T extends funcNode>(arrMap: ArrayMap<T>): T {
-  const rus: any = {};
-  for (const x in arrMap) {
-    rus[x] = Through(arrMap[x]);
+
+export function diffArrFilter<T extends funcNode>(
+  obj: ArrayMap<T>,
+  pobj: Partial<T>,
+) {
+  for (const x in pobj) {
+    obj[x] &&
+      (obj[x] = obj[x].filter(onep => {
+        return onep !== pobj[x];
+      }));
+  }
+}
+
+// map function to async function;
+export function toLastAsyncMap<T extends funcNode>(funcMap: T): T {
+  const rus: T = {} as any;
+  for (const x in funcMap) {
+    rus[x] = LastAsync(funcMap[x]);
   }
   return rus;
 }
 
-export function toAsyncFuncMap<T extends funcNode>(funcMap: T): T {
-  const rus: T = {} as any;
-  for (const x in funcMap) {
-    let ran = false;
-    let originFunc = funcMap[x];
-    rus[x] = (...args) => {
-      // 避免重复异步
-      if (!ran) {
-        ran = true;
-        nextTick(() => {
-          ran = false;
-          originFunc(...args);
-        });
-      } else {
-        return;
-      }
-    };
+// map function array to through function
+export function toThroughMap<T extends funcNode>(arrMap: ArrayMap<T>): T {
+  const rus: any = {};
+  for (const x in arrMap) {
+    rus[x] = Through(arrMap[x]);
   }
   return rus;
 }

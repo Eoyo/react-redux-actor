@@ -2,28 +2,28 @@ import {
   CeilReducer,
   getAction,
   Ceil,
-  CeilEvent,
   CeilEventObjMap,
 } from '../redux-ceil/ceil';
 import {UpgradeFunction} from '../neuron-utills/functional/function';
+import {PropsProxy} from '../neuron-utills/functional/PropProxy';
+import {OnEvent} from '../redux-ceil/onEvent';
 export type NeuronRus<R> = {[x in keyof R]: (arg: getAction<R[x]>) => void};
 
-type CeilWatcher = (ev: CeilEvent<any, any>) => (() => void);
-
 // Neuron 代理Ceil中的OnEvent。
-let CeilWatcher: CeilWatcher | null = null;
-let WatcherRemover: null | (() => void) = null;
+const CeilWatcher = PropsProxy((obj: Partial<CeilEventObjMap<any, any>>) => {
+  return (ev: OnEvent<any>) => {
+    return ev.addEventListener(obj);
+  };
+});
 
+// 构造神经元的工厂函数
 function NeuronConsturctor<S>(state: S) {
   return function reducers<
     R extends CeilReducer<S> & Partial<Record<'getCeil', never>>
   >(reducers: R) {
     const ceil = new Ceil(state, reducers);
 
-    // 控制是否监听ceil
-    if (CeilWatcher) {
-      WatcherRemover = CeilWatcher(ceil.ev);
-    }
+    CeilWatcher.execute(ceil.ev);
 
     // 构造Neuron的Action函数
     const rus: NeuronRus<R> = {} as any;
@@ -33,7 +33,7 @@ function NeuronConsturctor<S>(state: S) {
 
     // 构造neuron 保留的方法。
     return UpgradeFunction(rus)({
-      getCeil() {
+      _getCeil() {
         return ceil;
       },
     });
@@ -41,12 +41,11 @@ function NeuronConsturctor<S>(state: S) {
 }
 
 export const Neuron = UpgradeFunction(NeuronConsturctor)({
-  addWatcher(obj: Partial<CeilEventObjMap<any, any>>) {
-    if (WatcherRemover) {
-      WatcherRemover();
-    }
-    CeilWatcher = ev => {
-      return ev.addEventListener(obj);
-    };
+  _addWatcher: CeilWatcher.prepare,
+});
+
+Neuron._addWatcher({
+  merge(s, t) {
+    console.log('merge', t, s);
   },
 });
