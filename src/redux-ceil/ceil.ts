@@ -1,6 +1,7 @@
 import {mergeObj, Merge} from '../obj-merge/merge';
 import {OnEvent} from './onEvent';
 import {isSubsetOf} from '../neuron-utills/arr/subset';
+import {Through} from '../neuron-utills/functional/function';
 export type Key = string | number | symbol;
 export type AllReadonly<_S> = {readonly [x in keyof _S]: AllReadonly<_S[x]>};
 export type getSign<S> = S extends {sign: infer Sign} ? Sign : string[];
@@ -14,6 +15,9 @@ export class CancleError extends Error {
     this.message = '__cancle_error__';
   }
 }
+
+// 取消异步promise 的hock函数。
+type cancleHock = (hock: () => void) => void;
 
 // 归约函数的类型
 export type CeilReducerRus<S> = void | Promise<void>;
@@ -32,16 +36,20 @@ export type CeilReducer<S> = {
       killBefore: () => void;
 
       // 常用的时间函数。
-      time: (time: number) => Promise<{}>;
+      time: (time: number, cancleHock?: cancleHock) => Promise<{}>;
 
       // 监听sign
-      sign: (s: getSign<S>) => Promise<{}>;
+      sign: (s: getSign<S>, cancleHock?: cancleHock) => Promise<{}>;
 
       // 信号和时间的记录竞争，父区域不知道信号的发出者是哪个， 只关注是否有这个信号。
       // 时间和sign 的混合监听
-      race: (racer: (number | getSign<S>)[]) => Promise<number | getSign<S>>;
+      race: (
+        racer: (number | getSign<S>)[],
+        cancleHock?: cancleHock,
+      ) => Promise<number | getSign<S>>;
 
       // 断点函数， 一旦断点被满足， 则断点函数运行发生中断错误。
+      // 断点函数没必要被取消，不执行断点函数即可。
       break: (p: Promise<any>) => (() => void);
     },
   ) => CeilReducerRus<S>;
@@ -121,14 +129,30 @@ export class Ceil<
         running: false,
         count: 0,
         killBefore: () => {},
-        time: (time: number) => {
+        time: (time: number, cancleHock?: (hock: () => void) => void) => {
+          let hock;
+          cancleHock &&
+            cancleHock(() => {
+              hock();
+            });
           return new Promise<number>(res => {
-            setTimeout(() => {
+            let t = setTimeout(() => {
               res(time);
             }, time);
+
+            // 将promise 永挂起，相当于取消。
+            hock = () => clearTimeout(t);
           });
         },
-        sign: (subSign: getSign<S>) => {
+        sign: (
+          subSign: getSign<S>,
+          cancleHock?: (hock: () => void) => void,
+        ) => {
+          let hock;
+          cancleHock &&
+            cancleHock(() => {
+              hock();
+            });
           // 回调mergeAfter后的sign事件
           return new Promise(
             (
@@ -147,6 +171,12 @@ export class Ceil<
                   rej('no sign on state!!');
                 }
               };
+
+              // cancle hock;
+              hock = () => {
+                this.ev.removeEventListener({after: afterSign});
+              };
+
               this.ev.addEventListener({
                 after: afterSign,
               });
@@ -154,16 +184,36 @@ export class Ceil<
           );
         },
 
-        race: (racer: any[]) => {
-          return Promise.race(
+        race: (racer: any[], cancleHock?: (hock: () => void) => void) => {
+          let hock;
+          cancleHock &&
+            cancleHock(() => {
+              hock();
+            });
+
+          let canclePool: (() => void)[] = [];
+          const racePromise = Promise.race(
             racer.map(r => {
               if (typeof r === 'number') {
-                return yet.time(r);
+                return yet.time(r, hock => {
+                  canclePool.push(hock);
+                });
               } else {
-                return yet.sign(r as any) as any;
+                return yet.sign(r as any, hock => {
+                  canclePool.push(hock);
+                }) as any;
               }
             }),
-          );
+          ).then(data => {
+            // 成功后取消racer
+            hock();
+            return data;
+          });
+          hock = () => {
+            Through(canclePool)();
+          };
+
+          return racePromise;
         },
 
         break: (pro: Promise<any>) => {
@@ -249,16 +299,3 @@ export class Ceil<
     };
   }
 }
-
-// const c = new Ceil({
-//   good: ''
-// }, {
-//   getName(a: {
-//     id: string
-//   })  {
-//     return {
-
-//     };
-//   }
-// })
-// const getName = c.simulate('getName')
