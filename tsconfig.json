@@ -6,7 +6,9 @@
     "lib": ["dom", "es7"],
     "module": "commonjs",
     "moduleResolution": "node",
-    "declaration": true
+    "declaration": true,
+    "jsx": "react",
+    "strict": true
   },
   "include": ["./src/**/*"]
 }

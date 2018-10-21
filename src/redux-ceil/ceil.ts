@@ -10,7 +10,7 @@ export type getSignType<S> = S extends {sign: (infer Sign)[]} ? Sign : string;
 // !!Eror
 // 用于处理action cancle。 Cancle 阻断程序执行。
 export class CancleError extends Error {
-  constructor(...args) {
+  constructor(...args: any[]) {
     super(...args);
     this.message = '__cancle_error__';
   }
@@ -21,39 +21,52 @@ type cancleHock = (hock: () => void) => void;
 
 // 归约函数的类型
 export type CeilReducerRus<S> = void | Promise<void>;
-export type CeilReducer<S> = {
-  [x: string]: (
-    s: AllReadonly<S>,
-    a: any,
-    yet: {
-      (s: mergeObj<S>): S;
-      running: boolean;
 
-      // action 的运行计数
-      count: number;
+// 使用null 允许参数可选
+export type CheckNullArg<Arg, Rus> = Arg extends undefined | null
+  ? (arg?: Arg) => Rus
+  : (arg: Arg) => Rus;
 
-      // 使用当前的归约，之前的都干掉。
-      killBefore: () => void;
+// 构建Yet函数的类型
+export interface CeilYet<S, Act> {
+  (s: mergeObj<S>): S;
+  <Name extends keyof Act>(name: Name): CheckNullArg<Act[Name], S>;
+  running: boolean;
 
-      // 常用的时间函数。
-      time: (time: number, cancleHock?: cancleHock) => Promise<{}>;
+  // action 的运行计数
+  count: number;
 
-      // 监听sign
-      sign: (s: getSign<S>, cancleHock?: cancleHock) => Promise<{}>;
+  // 使用当前的归约，之前的都干掉。
+  killBefore(): void;
 
-      // 信号和时间的记录竞争，父区域不知道信号的发出者是哪个， 只关注是否有这个信号。
-      // 时间和sign 的混合监听
-      race: (
-        racer: (number | getSign<S>)[],
-        cancleHock?: cancleHock,
-      ) => Promise<number | getSign<S>>;
+  // 常用的时间函数。
+  time(time: number, cancleHock?: cancleHock): Promise<{}>;
 
-      // 断点函数， 一旦断点被满足， 则断点函数运行发生中断错误。
-      // 断点函数没必要被取消，不执行断点函数即可。
-      break: (p: Promise<any>) => (() => void);
-    },
-  ) => CeilReducerRus<S>;
-};
+  // 监听sign
+  sign(s: getSign<S>, cancleHock?: cancleHock): Promise<{}>;
+
+  // 信号和时间的记录竞争，父区域不知道信号的发出者是哪个， 只关注是否有这个信号。
+  // 时间和sign 的混合监听
+  race(
+    racer: (number | getSign<S>)[],
+    cancleHock?: cancleHock,
+  ): Promise<number | getSign<S>>;
+
+  // 断点函数， 一旦断点被满足， 则断点函数运行发生中断错误。
+  // 断点函数没必要被取消，不执行断点函数即可。
+  break(p: Promise<any>): (() => void);
+
+  // 覆盖原生 function 的call, yet.call用于唤起已经知道的归约
+  call(ac: Partial<Act>): S;
+}
+
+export interface CeilReducers<S> {
+  [x: string]: OneCeilReducer<S, any>;
+}
+
+export interface OneCeilReducer<S, Action> {
+  (s: AllReadonly<S>, a: Action, yet: CeilYet<S, any>): CeilReducerRus<S>;
+}
 
 // ceil 内部事件的回调
 export type CeilEventObjMap<S, T> = {
@@ -73,12 +86,13 @@ export class Ceil<
   S extends {
     sign?: string[];
   },
-  T extends CeilReducer<S>
+  T extends CeilReducers<S>
 > {
   state: S;
   reducers: T;
   reducersStack: Key[] = [];
   stackSize: number;
+  subscribePool: (() => void)[] = [];
   ev = new OnEvent(
     <CeilEventObjMap<S, T>>{
       // ceil 内部事件的回调
@@ -92,7 +106,11 @@ export class Ceil<
       after: (state, key) => {},
     },
     {
-      update: (state, key) => {},
+      update: (state: any, key: any) => {
+        for (const func of this.subscribePool) {
+          func();
+        }
+      },
     },
   );
   constructor(state: S, reducers: T, stackSize: number = 10) {
@@ -130,7 +148,7 @@ export class Ceil<
         count: 0,
         killBefore: () => {},
         time: (time: number, cancleHock?: (hock: () => void) => void) => {
-          let hock;
+          let hock: any;
           cancleHock &&
             cancleHock(() => {
               hock();
@@ -148,7 +166,7 @@ export class Ceil<
           subSign: getSign<S>,
           cancleHock?: (hock: () => void) => void,
         ) => {
-          let hock;
+          let hock: any;
           cancleHock &&
             cancleHock(() => {
               hock();
@@ -161,7 +179,7 @@ export class Ceil<
             ) => {
               const afterSign = (state: S) => {
                 if ('sign' in state) {
-                  if (isSubsetOf(subSign, state.sign)) {
+                  if (isSubsetOf(subSign, state.sign!)) {
                     this.ev.removeEventListener({after: afterSign});
                     res(subSign);
                   }
@@ -185,7 +203,7 @@ export class Ceil<
         },
 
         race: (racer: any[], cancleHock?: (hock: () => void) => void) => {
-          let hock;
+          let hock: any;
           cancleHock &&
             cancleHock(() => {
               hock();
@@ -248,7 +266,7 @@ export class Ceil<
       yet.count += 1;
 
       try {
-        const rus = reducer(this.state as any, arg, yet);
+        const rus = reducer(this.state as any, arg, yet as any);
         // yet out
         if (rus instanceof Promise) {
           rus.then(
@@ -296,6 +314,21 @@ export class Ceil<
         }
       }
       this.reducersStack.pop();
+    };
+  }
+  getStore() {
+    return {
+      subscribe: (func: () => void) => {
+        this.subscribePool.push(func);
+        return () => {
+          this.subscribePool = this.subscribePool.filter(one => {
+            return one !== func;
+          });
+        };
+      },
+      getState: () => {
+        return this.state;
+      },
     };
   }
 }

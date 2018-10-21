@@ -53,6 +53,12 @@
       "color": "#26bd5b",
       "backgroundColor": "rgba(0,0,0,0)",
       "overviewRulerColor": "grey"
+    },
+    {
+      "text": "reducers",
+      "color": "#26aa5b",
+      "backgroundColor": "rgba(0,0,0,0)",
+      "overviewRulerColor": "grey"
     }
   ],
   "workbench.colorTheme": "Solarized Light",

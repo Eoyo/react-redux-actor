@@ -26,3 +26,5 @@ todo：
 
 - race 和 Promise.race 的比较.
 - yet.count 的方式不安全, 应该和每次运行的 reducer 匹配.
+- connect, 兼容 react-redux
+- state net, 引用修改, 状态传导. 更新事件冒泡.
