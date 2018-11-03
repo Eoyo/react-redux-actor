@@ -74,7 +74,7 @@ export type MapActionToReducer<State, Act, OriAction = {}> = {
  * Neuron 的实例形态
  */
 
-// 使用reducers转化实例状态, 示例状态就是状态类的示例对象
+// 使用reducers转化实例状态, 实例状态就是状态类的实例对象
 export type ReduceInstanceState<State extends object, OriActions = {}> = <
   ReducersAction
 >(
@@ -134,3 +134,6 @@ export type Neuron<OriState extends object = {}, OriActions = {}> = <
 ) => C extends AnyClass
   ? ReduceAdvanceState<S & OriState, OriActions>
   : ReduceInstanceState<S & OriState, OriActions>;
+
+// 程序设计的阶段优先实现了类型,
+export const Neuron: Neuron = {} as any;

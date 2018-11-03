@@ -24,3 +24,6 @@ geek note {
   特殊符号标记句子
 }
 ```
+
+1. neuron cache, neuron new, 替换老的 yet,
+2. 状态边沿值

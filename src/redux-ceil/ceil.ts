@@ -3,7 +3,11 @@ import {OnEvent} from './onEvent';
 import {isSubsetOf} from '../neuron-utills/arr/subset';
 import {Through} from '../neuron-utills/functional/function';
 export type Key = string | number | symbol;
-export type AllReadonly<_S> = {readonly [x in keyof _S]: AllReadonly<_S[x]>};
+export type AllReadonly<_S> = {
+  readonly [x in keyof _S]: _S[x] extends (...args: any[]) => any
+    ? _S[x]
+    : AllReadonly<_S[x]>
+};
 export type getSign<S> = S extends {sign: infer Sign} ? Sign : string[];
 export type getSignType<S> = S extends {sign: (infer Sign)[]} ? Sign : string;
 

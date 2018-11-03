@@ -1,5 +1,5 @@
 import {Neuron} from './neuron';
-import * as React from 'react';
+
 // import {connect} from 'react-redux';
 
 // function setTime(time: number) {
@@ -60,9 +60,6 @@ import * as React from 'react';
 //     }
 //   },
 // });
-
-// 程序设计的阶段优先实现了类型,
-const Neuron: Neuron = {} as any;
 
 const PopCard = Neuron(
   class PopCard {
@@ -140,9 +137,68 @@ const popBox = BigPopCard({
   },
 });
 
-popBox.setName({
-  name: 'liumiao',
+class BoxDesscription {
+  name: string = '';
+}
+
+const Ball = Neuron(
+  class Ball {
+    box = popBox;
+    boxDescription = new BoxDesscription();
+  },
+);
+
+const crystal1 = Ball<{
+  setBoxNames: {
+    name: string;
+  };
+  clearBox: null;
+}>({
+  setBoxNames(S, a, yet) {
+    S.box.setName({
+      name: a.name,
+    });
+
+    yet.call({
+      setBoxNames: {
+        name: 'haha',
+      },
+      clearBox: null,
+    });
+
+    yet({
+      boxDescription: {
+        name: a.name,
+      },
+    });
+  },
+  clearBox(S, a, yet) {
+    yet({
+      boxDescription: new BoxDesscription(),
+    });
+  },
 });
+
+const crystal2 = Ball<{
+  okThings: string;
+}>({
+  okThings(S, a, yet) {
+    yet({});
+  },
+});
+
+// Group;
+const Blackhole = Funnel(crystal1, crystal2)<{
+  chekAll: null;
+}>({
+  chekAll(S, a, yet) {
+    yet;
+  },
+});
+
+// app.setBoxName({
+//   name: 'liumiao',
+// });
 
 // bigger 为响应式的函数.
 // bigger()(s => {
