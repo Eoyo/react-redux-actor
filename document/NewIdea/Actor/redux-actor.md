@@ -29,7 +29,7 @@ version
       
       // actionsInit
       {
-        getName: {
+        setName: {
           id: "1234",
           name: "lium",
         },
@@ -37,7 +37,7 @@ version
       
       // reducers
       {
-        getName(s, d) {
+        setName(s, d) {
           return { ...s };
         },
       }
@@ -45,7 +45,7 @@ version
     
     
     // actor 上有了一个对应的actoin function
-    actor.getName ({
+    actor.setName ({
         id: "4212",
         name : "liumiao"
     })
@@ -58,7 +58,7 @@ version
         ```typescript
           /* actionsInit */
         {
-            getName: {
+            setName: {
               id: "1234",
               name: "刘淼"
             }
@@ -70,7 +70,7 @@ version
         ```typescript
         /* 类比使用redux的store的情形 */
         const action = {
-          type: "getName",
+          type: "setName",
           id: "4321",
           name: "徐涛",
         };
@@ -79,21 +79,21 @@ version
         store.dispatch(action);
         ```
 
-    2.  actionsInit 中 getName 定义了 action 的 type,
+    2.  actionsInit 中 setName 定义了 action 的 type,
 
-    3.  actionsInit 中 getName 后紧接了一个 object 值, 这个值提供两个作用:
-        1.  让 TS 推断出类型, 让 TS 知道了 action 传了 type: 'getName'后, 剩下的应该是哪些类型的值;
-        2.  用于 actor 的 getName 函数的默认值, (4.actor 讲解)
+    3.  actionsInit 中 setName 后紧接了一个 object 值, 这个值提供两个作用:
+        1.  让 TS 推断出类型, 让 TS 知道了 action 传了 type: 'setName'后, 剩下的应该是哪些类型的值;
+        2.  用于 actor 的 setName 函数的默认值, (4.actor 讲解)
 
 3.  reducers:
 
-    1.  getName 是一个归约小函数, 函数名'getName' 会用于 Redux 的 action 的 type 的匹配.
+    1.  setName 是一个归约小函数, 函数名'setName' 会用于 Redux 的 action 的 type 的匹配.
     2.  redux.Ac 在 reducers 中定义了特殊的 reducer 接口 -- always,
 
         ```typescript
           /* reducers */
           {
-            getName(s, d) {
+            setName(s, d) {
               return {...s};
             },
             awalys(s) {
@@ -109,19 +109,19 @@ version
 
     1.  actor 的属性全是函数, 这些函数的名字会和 actionsInit 中的保持一致;
         ```typescript
-        actor.getName({
+        actor.setName({
           id: "4321",
           name: "徐涛",
         });
-        /* actor.getName(...) 相当于在内部执行如下的操作 */
+        /* actor.setName(...) 相当于在内部执行如下的操作 */
         /* store为actor内部的store */
         store.dispatch({
-          type: "getName",
+          type: "setName",
           id: "4321",
           name: "徐涛",
         });
         ```
-    2.  actionsInit 的值会在归约的过程中用到. 如果 actor 的 函数只传了一部分值, 剩下的部分会在归约的时候用 actionsInit 的值补全. (如何归约可以看源码...). 总之可以`actor.getName({id: '4321'})`; 归约时`name的值为'刘淼'`
+    2.  actionsInit 的值会在归约的过程中用到. 如果 actor 的 函数只传了一部分值, 剩下的部分会在归约的时候用 actionsInit 的值补全. (如何归约可以看源码...). 总之可以`actor.setName({id: '4321'})`; 归约时`name的值为'刘淼'`
 
 5.  action function, 是 redux.Ac 返回的对象上的 一些函数属性
 
