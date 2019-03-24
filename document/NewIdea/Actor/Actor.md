@@ -27,8 +27,6 @@ redux 的思想是对的, 只是他的实现需要 Actor 来加强.
 2. actionInit, action 函数的初始参数.
 3. reducers, 和 action 一一对应的归约函数.
 
-4. [ActorExmaple](../../../src/forDocument/actorExample.ts)
-
 ```typescript
 const app = Actor({
   person: {
